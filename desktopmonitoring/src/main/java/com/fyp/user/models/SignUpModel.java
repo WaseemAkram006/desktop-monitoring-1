@@ -1,28 +1,20 @@
 package com.fyp.user.models;
 
 public class SignUpModel {
-	String Managerid;
+	int id;
 	String first_name;
 	String last_name;
-	String department;
+	int department;
 	String user_password;
 	String email;
 	String contact_no;
-	/**
-	 * @return the managerid
-	 */
-	public String getManagerid() {
-		return Managerid;
+	
+	public int getId() {
+		return id;
 	}
-	/**
-	 * @param managerid the managerid to set
-	 */
-	public void setManagerid(String managerid) {
-		Managerid = managerid;
+	public void setId(int id) {
+		this.id = id;
 	}
-	/**
-	 * @return the first_name
-	 */
 	public String getFirst_name() {
 		return first_name;
 	}
@@ -47,14 +39,14 @@ public class SignUpModel {
 	/**
 	 * @return the department
 	 */
-	public String getDepartment() {
+	public int getDepartment() {
 		return department;
 	}
 	/**
-	 * @param department the department to set
+	 * @param i the department to set
 	 */
-	public void setDepartment(String department) {
-		this.department = department;
+	public void setDepartment(int i) {
+		this.department = i;
 	}
 	/**
 	 * @return the user_password

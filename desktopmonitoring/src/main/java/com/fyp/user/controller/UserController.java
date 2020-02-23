@@ -20,29 +20,37 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.fyp.admin.daoimp.AdminDaoImp;
+import com.fyp.admin.models.AddDeparmentModel;
 import com.fyp.user.daoImp.UserDaoImp;
+import com.fyp.user.models.HistoryModel;
 import com.fyp.user.models.LoginModel;
 import com.fyp.user.models.SignUpModel;
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.List;
+
 @Controller
 public class UserController {
 
 	@Autowired
 	private UserDaoImp userdaoimp;
+	@Autowired
+	AdminDaoImp adminDaoImp;
 
 	@GetMapping("/")
 	public ModelAndView employee_login() {
 
 		ModelAndView object = new ModelAndView("employee_login");
+		List<AddDeparmentModel> dep_list = adminDaoImp.getDeparments();
+		object.addObject("dep_list", dep_list);
+
 		return object;
 	}
 
 	@PostMapping("/signupProcess")
 	public ModelAndView signup(@ModelAttribute SignUpModel singnup) {
 		userdaoimp.signUp(singnup);
-		ModelAndView mavsignup = new ModelAndView("userpanal");
+		ModelAndView mavsignup = new ModelAndView("userdashBoard");
 		return (mavsignup);
 	}
 
@@ -50,12 +58,12 @@ public class UserController {
 	public ModelAndView loginsubmit(@ModelAttribute LoginModel login, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		 int Count=userdaoimp.login(login);
+		int Count = userdaoimp.login(login);
 		if (Count > 0) {
 			ModelAndView mav = new ModelAndView("userdashBoard");
-			String userid=userdaoimp.getuserid(login);
+			String userid = userdaoimp.getuserid(login);
 			HttpSession session = request.getSession();
-			session.setAttribute("userid",userid);
+			session.setAttribute("userid", userid);
 			return mav;
 		} else {
 			ModelAndView mav = new ModelAndView("employee_login");
@@ -65,11 +73,16 @@ public class UserController {
 	}
 
 	@GetMapping("/userpanal")
-	public ModelAndView userpanal() {
+	public ModelAndView userpanal(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession(false);
+		if (session != null) {
 
-		ModelAndView object = new ModelAndView("userpanal");
+			ModelAndView object = new ModelAndView("userpanal");
 
-		return object;
+			return object;
+		} else {
+			return employee_login();
+		}
 	}
 
 	@GetMapping("/screenshot")
@@ -103,21 +116,62 @@ public class UserController {
 			employee_login();
 		}
 	}
+
 	@GetMapping("/userLogOut")
 	public ModelAndView userLogOut() {
-		
-		ModelAndView mav=new ModelAndView("employee_login");
+
+		ModelAndView mav = new ModelAndView("employee_login");
 		return mav;
 	}
-	@GetMapping("/CurrentTime")
-	public void getCurrentTime() {
-		DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-		Date dateobj = new Date();
-	    String date=df.format(dateobj);
-		System.out.println(date);
-		
-	}
-	
-	
 
-}
+	@GetMapping("/userProfile")
+	public ModelAndView userProfile(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession(false);
+		String userid;
+		if (session != null) {
+			userid = (String) session.getAttribute("userid");
+			ModelAndView mav = new ModelAndView("userProfile");
+			SignUpModel record=userdaoimp.user_Record(Integer.parseInt(userid));
+			mav.addObject("rec",record);
+			List<AddDeparmentModel> dep_list = adminDaoImp.getDeparments();
+			mav.addObject("dep_list", dep_list);
+
+			return mav;
+		} else {
+			return employee_login();
+		}
+
+	}
+
+	@GetMapping("/history")
+	public ModelAndView history(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession(false);
+		String userid;
+		if (session != null) {
+			userid = (String) session.getAttribute("userid");
+		ModelAndView mav = new ModelAndView("histoy");
+		List<HistoryModel> list=userdaoimp.History(Integer.parseInt(userid));
+		System.out.println(list.get(0).getDate());
+		mav.addObject("list", list);
+		return mav;
+		}
+		else {
+			return employee_login();
+			
+		}
+	}
+
+	@GetMapping("/dashboard")
+	public ModelAndView dashboard() {
+		ModelAndView mav = new ModelAndView("userdashBoard");
+		return mav;
+	}
+	@PostMapping("/profileUpdate")
+	public ModelAndView updateProfile(@ModelAttribute SignUpModel signupModel) {
+		System.out.println(signupModel.getDepartment());
+	userdaoimp.UpdateProfile(signupModel);
+	
+		return null;
+	}
+
+	}

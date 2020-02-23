@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -59,25 +61,42 @@
 <link rel="stylesheet" type="text/css"
 	href="employee_login/css/main.css">
 <!--===============================================================================================-->
-<script type="text/javascript">
-$(document).ready(function(){
 
-      $.ajax({
-        type:'get',
-        url:'${pageContext.request.contextPath}/CurrentTime',
-        success:function(response) {
-          document.getElementById("total_items").value=response;
-          alert(respose);
-        }
-      });
-    });
+<script type="text/javascript">
+	function crunchifyAjax() {
+		$.ajax({
+			type : 'get',
+			url : '${pageContext.request.contextPath}/CurrentTime',
+			data : {
+	        	email:$("#email").val()
+	        	},
+			success : function(data) {
+				$('#result').text(data);
+			}
+		});
+	}
 </script>
 
+<script type="text/javascript">
+	var intervalId = 0;
+	intervalId = setInterval(crunchifyAjax, 6000);
+	
+</script>
 <style type="text/css">
 #success_message {
 	display: none;
 }
 </style>
+<script type="text/javascript"
+	src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 </head>
 <body>
 
@@ -95,8 +114,9 @@ $(document).ready(function(){
 					<h1 id="total_items"></h1>
 					<div class="wrap-input100 validate-input m-b-26"
 						data-validate="Username is required">
-						<span class="label-input100">Username</span> <input
-							class="input100" type="text" name="username" id=total_items
+						<span class="label-input100">Username</span>
+
+						<input class="input100" type="text" name="username" id=total_items
 							placeholder="Enter username"> <span
 							class="focus-input100"></span>
 					</div>
@@ -108,10 +128,6 @@ $(document).ready(function(){
 							placeholder="Enter password"> <span
 							class="focus-input100"></span>
 					</div>
-					<div>
-						<b class="txt12" style="color:red;">${msg}</b>
-					</div>
-
 
 					<div class="container-login100-form-btn m-t-40 m-l-70 ">
 						<button class="login100-form-btn">Login</button>
@@ -147,23 +163,12 @@ $(document).ready(function(){
 
 				</div>
 				<form class="well form-horizontal"
-					action="${pageContext.request.contextPath}/signup" method="post"
+					action="${pageContext.request.contextPath}/signupProcess" method="post"
 					id="contact_form">
 
 					<div class="modal-body">
 
 						<!-- Text input-->
-						<div class="form-group">
-							<label class="col-md-4 control-label">Manager Id</label>
-							<div class="col-md-5 inputGroupContainer">
-								<div class="input-group">
-									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-user"></i></span> <input name="Managerid"
-										placeholder="Manager Id" class="form-control" type="text">
-								</div>
-
-							</div>
-						</div>
 						<!-- Text input-->
 
 						<div class="form-group">
@@ -171,8 +176,16 @@ $(document).ready(function(){
 							<div class="col-md-5 inputGroupContainer">
 								<div class="input-group">
 									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-user"></i></span> <input name="department"
-										placeholder="Username" class="form-control" type="text">
+										class="glyphicon glyphicon-user"></i></span> <select required="required"
+										class="form-control" name="department">
+										
+										<c:forEach var="list" items="${dep_list}">
+											<option value='${list.deparment_id}'>${list.deparment_name}</option>
+										</c:forEach>
+
+									</select>
+
+
 								</div>
 							</div>
 						</div>
@@ -184,8 +197,9 @@ $(document).ready(function(){
 							<div class="col-md-5 inputGroupContainer">
 								<div class="input-group">
 									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-user"></i></span> <input name="first_name"
-										placeholder="First Name" class="form-control" type="text">
+										class="glyphicon glyphicon-user"></i></span> <input required="required" name="first_name"
+										placeholder="First Name" class="form-control" type="text"
+										pattern="[A-Za-z0-9]+">
 								</div>
 							</div>
 						</div>
@@ -197,8 +211,9 @@ $(document).ready(function(){
 							<div class="col-md-5 inputGroupContainer">
 								<div class="input-group">
 									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-user"></i></span> <input name="last_name"
-										placeholder="Last Name" class="form-control" type="text">
+										class="glyphicon glyphicon-user"></i></span> <input required="required" name="last_name"
+										placeholder="Last Name" class="form-control" type="text"
+										pattern="[A-Za-z0-9]+">
 								</div>
 							</div>
 						</div>
@@ -208,10 +223,16 @@ $(document).ready(function(){
 							<div class="col-md-5 inputGroupContainer">
 								<div class="input-group">
 									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-envelope"></i></span> <input name="email"
-										placeholder="E-Mail Address" class="form-control" type="text">
+										class="glyphicon glyphicon-envelope"></i></span> <input  required="required" name="email"
+										placeholder="E-Mail Address" id="email" class="form-control"
+										type="text" pattern="[^ @]*@[^ @]*">
+										
+
 								</div>
+								<div id="result" style="color:red"></div>
+
 							</div>
+
 						</div>
 
 
@@ -222,23 +243,9 @@ $(document).ready(function(){
 							<div class="col-md-5 inputGroupContainer">
 								<div class="input-group">
 									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-user"></i></span> <input
+										class="glyphicon glyphicon-user"></i></span> <input required="required"
 										name="user_password" placeholder="Password"
-										class="form-control" type="password">
-								</div>
-							</div>
-						</div>
-
-						<!-- Text input-->
-
-						<div class="form-group">
-							<label class="col-md-4 control-label">Confirm Password</label>
-							<div class="col-md-5 inputGroupContainer">
-								<div class="input-group">
-									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-user"></i></span> <input
-										name="confirm_password" placeholder="Confirm Password"
-										class="form-control" type="password">
+										class="form-control" type="password" pattern=".{8,}" title="Eight or more characters">
 								</div>
 							</div>
 						</div>
@@ -250,8 +257,8 @@ $(document).ready(function(){
 							<div class="col-md-5 inputGroupContainer">
 								<div class="input-group">
 									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-earphone"></i></span> <input
-										name="contact_no" placeholder="()" class="form-control"
+										class="glyphicon glyphicon-earphone"></i></span> <input required="required"
+										name="contact_no"  class="form-control" pattern="03[0-9]{2}[0-9]{7}"
 										type="text">
 								</div>
 							</div>
@@ -269,7 +276,7 @@ $(document).ready(function(){
 						<label class="col-md-4 control-label"></label>
 						<div class="col-md-4">
 							<br>
-							<button type="submit" class="btn btn-warning">
+							<button  type="submit" class="btn btn-warning">
 								SUBMIT<span class="glyphicon glyphicon-send"></span>
 							</button>
 						</div>
